@@ -206,11 +206,11 @@
       const my = (e.clientY - rect.top) * scaleY;
       
       const center = [canvas.width / 2, canvas.height / 2];
-      const scale = 35;
+      const scale = 40;
       const px = center[0] + vx * scale;
       const py = center[1] - vy * scale;
 
-      if (Math.hypot(mx - px, my - py) < 20) {
+      if (Math.hypot(mx - px, my - py) < 22) {
         isDragging = true;
       }
     });
@@ -224,7 +224,7 @@
       const my = (e.clientY - rect.top) * scaleY;
 
       const center = [canvas.width / 2, canvas.height / 2];
-      const scale = 35;
+      const scale = 40;
 
       vx = parseFloat(((mx - center[0]) / scale).toFixed(1));
       vy = parseFloat(((center[1] - my) / scale).toFixed(1));
@@ -242,25 +242,48 @@
       const w = canvas.width;
       const h = canvas.height;
       const center = [w / 2, h / 2];
-      const scale = 35;
+      const scale = 40; // Escala perfecta para 440x400
 
       ctx.clearRect(0, 0, w, h);
 
-      // Grilla de Fondo
+      // 1. Grilla Secundaria (Líneas finas centradas en 0,0)
       ctx.strokeStyle = '#181b28';
       ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += scale) {
+
+      for (let x = center[0] % scale; x < w; x += scale) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
       }
-      for (let y = 0; y < h; y += scale) {
+      for (let y = center[1] % scale; y < h; y += scale) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
       }
 
-      // Ejes Cartesiano
+      // 2. Ejes Cartesianos Principales (X e Y exactos)
       ctx.strokeStyle = '#3a3f55';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(center[0], 0); ctx.lineTo(center[0], h); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, center[1]); ctx.lineTo(w, center[1]); ctx.stroke();
+
+      // 3. Números y Marcas en los Ejes
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Números en Eje X
+      for (let x = -5; x <= 5; x++) {
+        if (x !== 0) {
+          const screenX = center[0] + x * scale;
+          ctx.fillText(x, screenX, center[1] + 12);
+        }
+      }
+
+      // Números en Eje Y
+      for (let y = -5; y <= 5; y++) {
+        if (y !== 0) {
+          const screenY = center[1] - y * scale;
+          ctx.fillText(y, center[0] - 14, screenY);
+        }
+      }
 
       const toScreen = (x, y) => [center[0] + x * scale, center[1] - y * scale];
 
@@ -268,6 +291,7 @@
       const Ty = 1 * vx + 2 * vy;
       const isKernel = Math.abs(Tx) < 0.25 && Math.abs(Ty) < 0.25;
 
+      // 4. Recta del Núcleo cuando se acierta
       if (isKernel) {
         ctx.save();
         ctx.setLineDash([6, 6]);
@@ -286,9 +310,11 @@
         const textPos = toScreen(vx - 2.0, vy + 0.6);
         ctx.fillStyle = '#ff4757';
         ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'left';
         ctx.fillText('este es el núcleo 😊', textPos[0], textPos[1]);
       }
 
+      // 5. Vector v
       const vScreen = toScreen(vx, vy);
       drawArrow(center[0], center[1], vScreen[0], vScreen[1], '#00f2fe');
 
@@ -300,15 +326,18 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
+      // 6. Vector Transformado T(v)
       if (!isKernel) {
         const tvScreen = toScreen(Tx, Ty);
         drawArrow(center[0], center[1], tvScreen[0], tvScreen[1], '#a855f7');
         
         ctx.fillStyle = '#a855f7';
         ctx.font = '12px monospace';
+        ctx.textAlign = 'left';
         ctx.fillText('Tv', tvScreen[0] + 8, tvScreen[1] - 8);
       }
 
+      // Actualizar Estado
       if (isKernel) {
         statusBox.style.borderColor = '#ff4757';
         statusBox.style.color = '#ff4757';
