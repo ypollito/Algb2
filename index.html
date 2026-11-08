@@ -1,405 +1,928 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transformación T: R³ → R² (Núcleo)</title>
-  <!-- Three.js y OrbitControls desde CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <style>
-    :root {
-      --bg-color: #0b0c10;
-      --card-bg: #12141d;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
-      --accent-purple: #a855f7;
-      --accent-red: #ff4757;
-      --text-main: #ffffff;
-      --text-muted: #8892b0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio de Transformaciones Lineales</title>
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+<style>
+:root {
+    --bg: #0b0c10;
+    --card: #12141d;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+    --text: #ffffff;
+    --muted: #8892b0;
+}
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 25px;
+}
+
+button {
+    cursor: pointer;
+}
+
+.selector-container {
+    max-width: 1100px;
+    margin: 70px auto;
+    text-align: center;
+}
+
+.section-tag {
+    color: var(--purple);
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+}
+
+h1 {
+    font-size: clamp(25px, 4vw, 38px);
+    margin-bottom: 15px;
+}
+
+.description {
+    color: var(--muted);
+    margin-bottom: 35px;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 22px;
+    text-align: left;
+}
+
+.exercise-card {
+    background: var(--card);
+    border: 1px solid #252a38;
+    border-radius: 16px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    transition: .3s;
+}
+
+.exercise-card:hover {
+    border-color: var(--purple);
+    transform: translateY(-3px);
+}
+
+.exercise-title {
+    font-size: 21px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.exercise-desc {
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.formula {
+    background: #08090c;
+    border: 1px solid #30364a;
+    color: var(--cyan);
+    padding: 14px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: monospace;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #a855f7, #7928ca);
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.btn:hover {
+    opacity: .85;
+}
+
+.exercise {
+    display: none;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.exercise.active {
+    display: block;
+}
+
+.back-btn {
+    background: #252a38;
+    border: 1px solid #41475b;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 7px;
+    margin-bottom: 20px;
+}
+
+.panel {
+    background: var(--card);
+    border: 1px solid #252a38;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.exercise-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+h2 {
+    margin-bottom: 12px;
+}
+
+p {
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.formula-box {
+    background: #08090c;
+    border: 1px solid #30364a;
+    color: var(--cyan);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-family: monospace;
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+}
+
+.slider-group {
+    margin: 15px 0;
+}
+
+.slider-group label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+input[type=range] {
+    width: 100%;
+    accent-color: var(--purple);
+}
+
+.status {
+    background: rgba(168,85,247,.1);
+    border: 1px solid rgba(168,85,247,.4);
+    border-radius: 9px;
+    padding: 15px;
+    font-family: monospace;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    background: #0c0e17;
+    border-radius: 9px;
+    margin: auto;
+    cursor: crosshair;
+}
+
+.canvas-title {
+    text-align: center;
+    background: rgba(168,85,247,.2);
+    padding: 10px;
+    border-radius: 7px;
+    margin-bottom: 12px;
+}
+
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.preset-grid button {
+    background: #202536;
+    border: 1px solid #41475b;
+    color: white;
+    padding: 9px 4px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+@media(max-width:600px) {
     body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
+        padding: 12px;
     }
 
-    .container {
-      display: grid;
-      grid-template-columns: 300px 360px 360px;
-      gap: 15px;
-      width: 100%;
-      max-width: 1080px;
-      align-items: center;
+    .selector-container {
+        margin: 35px auto;
     }
 
-    .section-tag {
-      font-size: 0.68rem;
-      letter-spacing: 2px;
-      color: var(--accent-purple);
-      margin-bottom: 5px;
-      font-family: monospace;
+    .exercise {
+        margin: 15px auto;
     }
 
-    h2 { font-size: 1.25rem; margin-bottom: 6px; font-weight: 700; line-height: 1.2; }
-    p { color: var(--text-muted); font-size: 0.76rem; line-height: 1.4; margin-bottom: 10px; }
-
-    .formula-card {
-      background: var(--card-bg);
-      border: 1px solid #1e2330;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 8px;
-      font-family: monospace;
+    .preset-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-
-    .formula-title { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 4px; }
-    .formula-box {
-      font-size: 0.8rem;
-      color: var(--accent-cyan);
-      text-align: center;
-      background: #08090c;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #2a3142;
-    }
-
-    .slider-card {
-      background: var(--card-bg);
-      border: 1px solid #1e2330;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 8px;
-    }
-
-    .slider-group { margin-bottom: 10px; }
-    .slider-group:last-child { margin-bottom: 0; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px; font-family: monospace; font-weight: 600; }
-
-    /* Estilos personalizados para los sliders de colores */
-    input[type="range"] {
-      width: 100%;
-      height: 5px;
-      border-radius: 3px;
-      background: #1e2330;
-      appearance: none;
-      outline: none;
-    }
-
-    #slider-x::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; box-shadow: 0 0 6px var(--accent-blue); }
-    #slider-y::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 6px var(--accent-cyan); }
-    #slider-z::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--accent-purple); cursor: pointer; box-shadow: 0 0 6px var(--accent-purple); }
-
-    .status-card {
-      background: rgba(168, 85, 247, 0.08);
-      border: 1px solid rgba(168, 85, 247, 0.3);
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.72rem;
-      transition: 0.3s;
-    }
-
-    .canvas-card {
-      background: var(--card-bg);
-      border: 1px solid #1e2330;
-      border-radius: 14px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .activity-banner {
-      background: rgba(168, 85, 247, 0.2);
-      color: #e9d5ff;
-      border: 1px solid rgba(168, 85, 247, 0.4);
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-family: monospace;
-      text-align: center;
-      width: 100%;
-    }
-
-    #webgl-container {
-      width: 330px;
-      height: 330px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #0c0e17;
-    }
-
-    canvas.r2-canvas {
-      border-radius: 10px;
-      background: #0c0e17;
-      width: 330px;
-      height: 330px;
-    }
-
-    .canvas-hint {
-      margin-top: 5px;
-      font-size: 0.62rem;
-      color: var(--text-muted);
-      font-family: monospace;
-      text-align: center;
-    }
-  </style>
+}
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-    <!-- Panel Izquierdo: Controles -->
-    <div class="info-panel">
-      <div class="section-tag">ÁLGEBRA LINEAL • 3D</div>
-      <h2>Transformación T: R³ → R²</h2>
-      <p>Arrastra para orbitar el espacio 3D y usa la rueda para hacer zoom.</p>
+<!-- PANTALLA PRINCIPAL -->
 
-      <div class="formula-card">
-        <div class="formula-title">REGLA DE TRANSFORMACIÓN</div>
-        <div class="formula-box">T(x,y,z) = (x+2y+z, 2x+4y+2z)</div>
-      </div>
+<div class="selector-container" id="home">
 
-      <div class="slider-card">
-        <div class="slider-group">
-          <div class="slider-label" style="color: var(--accent-blue);"><span>x (Vector)</span><span id="val-x">-2.0</span></div>
-          <input type="range" id="slider-x" min="-4" max="4" step="0.1" value="-2.0">
-        </div>
-        <div class="slider-group" style="margin-top: 8px;">
-          <div class="slider-label" style="color: var(--accent-cyan);"><span>y (Vector)</span><span id="val-y">1.0</span></div>
-          <input type="range" id="slider-y" min="-4" max="4" step="0.1" value="1.0">
-        </div>
-        <div class="slider-group" style="margin-top: 8px;">
-          <div class="slider-label" style="color: var(--accent-purple);"><span>z (Vector)</span><span id="val-z">0.0</span></div>
-          <input type="range" id="slider-z" min="-4" max="4" step="0.1" value="0.0">
-        </div>
-      </div>
-
-      <div class="status-card" id="status-box">
-        v = (-2.0, 1.0, 0.0)<br>
-        T(v) = (0.0, 0.0)
-      </div>
+    <div class="section-tag">
+        LABORATORIO VIRTUAL • ÁLGEBRA LINEAL
     </div>
 
-    <!-- Panel Central: Espacio R3 Interactivo (Three.js) -->
-    <div class="canvas-card">
-      <div class="activity-banner">Espacio R³ (Entrada 3D)</div>
-      <div id="webgl-container"></div>
-      <div class="canvas-hint">Arrastra para orbitar | Scroll para zoom</div>
+    <h1>Visualizadores de Transformaciones Lineales</h1>
+
+    <p class="description">
+        Selecciona el ejercicio interactivo que deseas explorar.
+    </p>
+
+    <div class="cards-grid">
+
+        <div class="exercise-card">
+
+            <div>
+                <div class="exercise-title">
+                    Ejercicio 1: Plano a Plano
+                </div>
+
+                <p class="exercise-desc">
+                    Explora el núcleo interactivo moviendo
+                    un vector en el plano cartesiano.
+                </p>
+
+                <div class="formula">
+                    T(x,y) = (2x + 4y, x + 2y)
+                </div>
+            </div>
+
+            <button class="btn" onclick="openExercise(1)">
+                Abrir Ejercicio 1 (R² → R²)
+            </button>
+
+        </div>
+
+        <div class="exercise-card">
+
+            <div>
+                <div class="exercise-title">
+                    Ejercicio 2: Espacio a Plano
+                </div>
+
+                <p class="exercise-desc">
+                    Visualiza en 3D el núcleo de la transformación
+                    y su proyección en el codominio R².
+                </p>
+
+                <div class="formula">
+                    T(x,y,z) = (x+2y+z, 2x+4y+2z)
+                </div>
+            </div>
+
+            <button class="btn" onclick="openExercise(2)">
+                Abrir Ejercicio 2 (R³ → R²)
+            </button>
+
+        </div>
+
     </div>
+</div>
 
-    <!-- Panel Derecho: Plano R2 (Resultado) -->
-    <div class="canvas-card">
-      <div class="activity-banner">Plano R² (Resultado T(v))</div>
-      <canvas id="canvasR2" class="r2-canvas" width="330" height="330"></canvas>
-      <div class="canvas-hint">Resultado proyectado T(v)</div>
+
+<!-- EJERCICIO 1 -->
+
+<section class="exercise" id="exercise1">
+
+    <button class="back-btn" onclick="goHome()">
+        ← Volver al selector
+    </button>
+
+    <div class="exercise-layout">
+
+        <div>
+
+            <div class="panel">
+
+                <div class="section-tag">ÁLGEBRA LINEAL</div>
+
+                <h2>Transformación Lineal: Núcleo</h2>
+
+                <p>
+                    El núcleo Ker(T) contiene todos los vectores
+                    que se transforman en el vector cero.
+                </p>
+
+                <div class="formula-box">
+                    T(x,y) = (2x + 4y, x + 2y)
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="slider-group">
+                    <label>
+                        Coordenada X
+                        <span id="x1value">-2.0</span>
+                    </label>
+
+                    <input type="range" id="x1"
+                    min="-6" max="6" step=".1" value="-2">
+                </div>
+
+                <div class="slider-group">
+                    <label>
+                        Coordenada Y
+                        <span id="y1value">1.0</span>
+                    </label>
+
+                    <input type="range" id="y1"
+                    min="-4" max="4" step=".1" value="1">
+                </div>
+
+            </div>
+
+            <div class="status" id="status1"></div>
+
+        </div>
+
+        <div class="panel">
+
+            <div class="canvas-title">
+                Plano cartesiano R²
+            </div>
+
+            <canvas id="canvas1" width="500" height="400"></canvas>
+
+            <p style="text-align:center;margin-top:10px">
+                Mueve los controles para explorar el núcleo.
+            </p>
+
+        </div>
+
     </div>
-  </div>
+</section>
 
-  <script>
-    // --- Configuración 3D con Three.js ---
-    const container = document.getElementById('webgl-container');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0c0e17);
 
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(6, 4, 6);
+<!-- EJERCICIO 2 -->
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(330, 330);
-    container.appendChild(renderer.domElement);
+<section class="exercise" id="exercise2">
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+    <button class="back-btn" onclick="goHome()">
+        ← Volver al selector
+    </button>
 
-    // Luces
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    dirLight.position.set(5, 10, 7);
-    scene.add(dirLight);
+    <div class="exercise-layout">
 
-    // Ejes 3D perpendiculares profesionales
-    const axesHelper = new THREE.AxesHelper(4);
-    scene.add(axesHelper);
+        <div>
 
-    // Grilla en el piso XY
-    const gridHelper = new THREE.GridHelper(8, 8, 0x2a3142, 0x181b28);
-    gridHelper.position.y = -0.01;
-    scene.add(gridHelper);
+            <div class="panel">
 
-    // Plano del Kernel (x + 2y + z = 0)
-    const planeGeo = new THREE.PlaneGeometry(8, 8);
-    const planeMat = new THREE.MeshBasicMaterial({
-      color: 0xff4757,
-      transparent: true,
-      opacity: 0.15,
-      side: THREE.DoubleSide
+                <div class="section-tag">
+                    ÁLGEBRA LINEAL • T(v)
+                </div>
+
+                <h2>Visualizador Interactivo 3D</h2>
+
+                <p>
+                    Explora el núcleo y la transformación espacial.
+                </p>
+
+                <div class="formula-box">
+                    T(x,y,z) = (x+2y+z, 2x+4y+2z)
+                </div>
+
+                <div class="formula-box">
+                    Matriz asociada:
+                    <br><br>
+                    [ 1 &nbsp; 2 &nbsp; 1 ]
+                    <br>
+                    [ 2 &nbsp; 4 &nbsp; 2 ]
+                </div>
+
+                <div class="formula-box">
+                    Ker(T) = span {
+                    <br>
+                    (-2, 1, 0), (-1, 0, 1)
+                    }
+                    <br><br>
+                    Plano: x + 2y + z = 0
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="preset-grid">
+
+                    <button onclick="preset(-2,1,0)">
+                        Kernel 1
+                    </button>
+
+                    <button onclick="preset(-1,0,1)">
+                        Kernel 2
+                    </button>
+
+                    <button onclick="preset(1,1,-3)">
+                        Kernel 3
+                    </button>
+
+                    <button onclick="preset(1,0,0)">
+                        Base e₁
+                    </button>
+
+                    <button onclick="preset(0,1,0)">
+                        Base e₂
+                    </button>
+
+                    <button onclick="preset(0,0,1)">
+                        Base e₃
+                    </button>
+
+                </div>
+
+                <div class="slider-group">
+                    <label>
+                        Coordenada X
+                        <span id="x2value">-2.0</span>
+                    </label>
+
+                    <input type="range" id="x2"
+                    min="-4" max="4" step=".1" value="-2">
+                </div>
+
+                <div class="slider-group">
+                    <label>
+                        Coordenada Y
+                        <span id="y2value">1.0</span>
+                    </label>
+
+                    <input type="range" id="y2"
+                    min="-4" max="4" step=".1" value="1">
+                </div>
+
+                <div class="slider-group">
+                    <label>
+                        Coordenada Z
+                        <span id="z2value">0.0</span>
+                    </label>
+
+                    <input type="range" id="z2"
+                    min="-4" max="4" step=".1" value="0">
+                </div>
+
+            </div>
+
+            <div class="status" id="status2"></div>
+
+        </div>
+
+        <div>
+
+            <div class="panel">
+
+                <div class="canvas-title">
+                    Dominio R³: Entrada v
+                </div>
+
+                <canvas id="canvas3d" width="400" height="400"></canvas>
+
+                <p style="text-align:center">
+                    Visualización del plano del núcleo.
+                </p>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="canvas-title">
+                    Codominio R²: Resultado T(v)
+                </div>
+
+                <canvas id="canvasR2" width="400" height="300"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<script>
+
+// NAVEGACIÓN
+
+function openExercise(num) {
+
+    document.getElementById("home").style.display = "none";
+
+    document.querySelectorAll(".exercise")
+    .forEach(e => e.classList.remove("active"));
+
+    document.getElementById("exercise" + num)
+    .classList.add("active");
+
+    if(num === 1) draw1();
+    if(num === 2) update2();
+}
+
+function goHome() {
+
+    document.getElementById("home").style.display = "block";
+
+    document.querySelectorAll(".exercise")
+    .forEach(e => e.classList.remove("active"));
+
+}
+
+
+// EJERCICIO 1
+
+const canvas1 = document.getElementById("canvas1");
+const ctx1 = canvas1.getContext("2d");
+
+const x1 = document.getElementById("x1");
+const y1 = document.getElementById("y1");
+
+function draw1() {
+
+    let x = Number(x1.value);
+    let y = Number(y1.value);
+
+    document.getElementById("x1value").textContent = x.toFixed(1);
+    document.getElementById("y1value").textContent = y.toFixed(1);
+
+    let Tx = 2*x + 4*y;
+    let Ty = x + 2*y;
+
+    let kernel = Math.abs(Tx) < .15 && Math.abs(Ty) < .15;
+
+    document.getElementById("status1").innerHTML =
+        "v = (" + x.toFixed(1) + ", " + y.toFixed(1) + ")" +
+        "<br>T(v) = (" + Tx.toFixed(1) + ", " + Ty.toFixed(1) + ")" +
+        (kernel ? "<br>✓ VECTOR EN EL NÚCLEO" : "<br>Vector fuera del núcleo");
+
+    const w = canvas1.width;
+    const h = canvas1.height;
+    const cx = w/2;
+    const cy = h/2;
+    const scale = 35;
+
+    ctx1.clearRect(0,0,w,h);
+
+    ctx1.strokeStyle = "#202536";
+    ctx1.lineWidth = 1;
+
+    for(let i=0;i<w;i+=scale) {
+        ctx1.beginPath();
+        ctx1.moveTo(i,0);
+        ctx1.lineTo(i,h);
+        ctx1.stroke();
+    }
+
+    for(let i=0;i<h;i+=scale) {
+        ctx1.beginPath();
+        ctx1.moveTo(0,i);
+        ctx1.lineTo(w,i);
+        ctx1.stroke();
+    }
+
+    ctx1.strokeStyle = "#8892b0";
+    ctx1.lineWidth = 2;
+
+    ctx1.beginPath();
+    ctx1.moveTo(cx,0);
+    ctx1.lineTo(cx,h);
+    ctx1.stroke();
+
+    ctx1.beginPath();
+    ctx1.moveTo(0,cy);
+    ctx1.lineTo(w,cy);
+    ctx1.stroke();
+
+    // Recta del núcleo
+
+    ctx1.strokeStyle = "#ff4757";
+    ctx1.lineWidth = 2;
+    ctx1.setLineDash([7,5]);
+
+    ctx1.beginPath();
+    ctx1.moveTo(cx-150,cy-75);
+    ctx1.lineTo(cx+150,cy+75);
+    ctx1.stroke();
+
+    ctx1.setLineDash([]);
+
+    // Vector
+
+    let px = cx + x*scale;
+    let py = cy - y*scale;
+
+    ctx1.strokeStyle = kernel ? "#ff4757" : "#06b6d4";
+    ctx1.lineWidth = 3;
+
+    ctx1.beginPath();
+    ctx1.moveTo(cx,cy);
+    ctx1.lineTo(px,py);
+    ctx1.stroke();
+
+    ctx1.fillStyle = kernel ? "#ff4757" : "#3b82f6";
+
+    ctx1.beginPath();
+    ctx1.arc(px,py,8,0,Math.PI*2);
+    ctx1.fill();
+
+    ctx1.fillStyle = "white";
+    ctx1.font = "14px Arial";
+    ctx1.fillText("v",px+10,py-10);
+
+}
+
+x1.addEventListener("input",draw1);
+y1.addEventListener("input",draw1);
+
+draw1();
+
+
+// EJERCICIO 2
+
+const x2 = document.getElementById("x2");
+const y2 = document.getElementById("y2");
+const z2 = document.getElementById("z2");
+
+const canvas3d = document.getElementById("canvas3d");
+const ctx3d = canvas3d.getContext("2d");
+
+const canvasR2 = document.getElementById("canvasR2");
+const ctxR2 = canvasR2.getContext("2d");
+
+
+function preset(x,y,z) {
+
+    x2.value = x;
+    y2.value = y;
+    z2.value = z;
+
+    update2();
+}
+
+
+function update2() {
+
+    let x = Number(x2.value);
+    let y = Number(y2.value);
+    let z = Number(z2.value);
+
+    document.getElementById("x2value").textContent = x.toFixed(1);
+    document.getElementById("y2value").textContent = y.toFixed(1);
+    document.getElementById("z2value").textContent = z.toFixed(1);
+
+    let s = x + 2*y + z;
+
+    let Tx = s;
+    let Ty = 2*s;
+
+    let kernel = Math.abs(s) < .15;
+
+    document.getElementById("status2").innerHTML =
+        (kernel ? "✓ EN EL NÚCLEO (Ker T)" : "FUERA DEL NÚCLEO") +
+        "<br>v = (" + x.toFixed(1) + ", " +
+        y.toFixed(1) + ", " + z.toFixed(1) + ")" +
+        "<br>T(v) = (" + Tx.toFixed(1) + ", " +
+        Ty.toFixed(1) + ")" +
+        "<br>Ker(T): x + 2y + z = 0" +
+        "<br>Dimensión del núcleo = 2" +
+        "<br>Dimensión del rango = 1";
+
+    draw3D(x,y,z,kernel);
+    drawR2(Tx,Ty);
+
+}
+
+
+// VISUALIZACIÓN DEL PLANO EN R3
+
+function draw3D(x,y,z,kernel) {
+
+    const w = canvas3d.width;
+    const h = canvas3d.height;
+
+    ctx3d.clearRect(0,0,w,h);
+
+    const cx = w/2;
+    const cy = h/2;
+
+    function project(a,b,c) {
+
+        return [
+            cx + (a-b)*35,
+            cy + (a+b)*17 - c*35
+        ];
+
+    }
+
+    // Plano x + 2y + z = 0
+
+    const points = [
+        [-2,1,0],
+        [2,-1,0],
+        [-1,0,1],
+        [1,0,-1]
+    ];
+
+    const projected = points.map(p =>
+        project(p[0],p[1],p[2])
+    );
+
+    ctx3d.fillStyle = "rgba(255,71,87,.20)";
+    ctx3d.strokeStyle = "#ff4757";
+    ctx3d.lineWidth = 2;
+
+    ctx3d.beginPath();
+    ctx3d.moveTo(projected[0][0],projected[0][1]);
+    ctx3d.lineTo(projected[1][0],projected[1][1]);
+    ctx3d.lineTo(projected[3][0],projected[3][1]);
+    ctx3d.lineTo(projected[2][0],projected[2][1]);
+    ctx3d.closePath();
+    ctx3d.fill();
+    ctx3d.stroke();
+
+    // Ejes
+
+    ctx3d.strokeStyle = "#8892b0";
+    ctx3d.lineWidth = 2;
+
+    let origin = project(0,0,0);
+
+    [[3,0,0],[-3,0,0],[0,3,0],[0,-3,0],[0,0,3],[0,0,-3]]
+    .forEach(p => {
+
+        let end = project(p[0],p[1],p[2]);
+
+        ctx3d.beginPath();
+        ctx3d.moveTo(origin[0],origin[1]);
+        ctx3d.lineTo(end[0],end[1]);
+        ctx3d.stroke();
+
     });
-    const kernelPlane = new THREE.Mesh(planeGeo, planeMat);
-    kernelPlane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(1, 2, 1).normalize());
-    kernelPlane.visible = false;
-    scene.add(kernelPlane);
 
-    // Vector v en 3D
-    let vectorLine = null;
-    let vectorHead = null;
+    // Vector de entrada
 
-    function update3DVector(x, y, z, isKernel) {
-      if (vectorLine) scene.remove(vectorLine);
-      if (vectorHead) scene.remove(vectorHead);
+    let v = project(x,y,z);
 
-      const dir = new THREE.Vector3(x, y, z);
-      if (dir.length() < 0.001) return;
+    ctx3d.strokeStyle = kernel ? "#ff4757" : "#06b6d4";
+    ctx3d.lineWidth = 4;
 
-      const color = isKernel ? 0xff4757 : 0x3b82f6;
-      
-      const points = [new THREE.Vector3(0, 0, 0), dir];
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({ color: color, linewidth: 3 });
-      vectorLine = new THREE.Line(geometry, material);
-      scene.add(vectorLine);
+    ctx3d.beginPath();
+    ctx3d.moveTo(origin[0],origin[1]);
+    ctx3d.lineTo(v[0],v[1]);
+    ctx3d.stroke();
 
-      const sphereGeo = new THREE.SphereGeometry(0.12, 16, 16);
-      const sphereMat = new THREE.MeshBasicMaterial({ color: color });
-      vectorHead = new THREE.Mesh(sphereGeo, sphereMat);
-      vectorHead.position.copy(dir);
-      scene.add(vectorHead);
+    ctx3d.fillStyle = kernel ? "#ff4757" : "#06b6d4";
+
+    ctx3d.beginPath();
+    ctx3d.arc(v[0],v[1],7,0,Math.PI*2);
+    ctx3d.fill();
+
+    ctx3d.fillStyle = "white";
+    ctx3d.font = "14px Arial";
+    ctx3d.fillText("v",v[0]+10,v[1]-10);
+
+    ctx3d.fillText("X",cx+110,cy+55);
+    ctx3d.fillText("Y",cx-110,cy+55);
+    ctx3d.fillText("Z",cx,cy-120);
+
+}
+
+
+// VISUALIZACIÓN DEL CODOMINIO R2
+
+function drawR2(Tx,Ty) {
+
+    const w = canvasR2.width;
+    const h = canvasR2.height;
+
+    const cx = w/2;
+    const cy = h/2;
+
+    const scale = 20;
+
+    ctxR2.clearRect(0,0,w,h);
+
+    ctxR2.strokeStyle = "#202536";
+    ctxR2.lineWidth = 1;
+
+    for(let i=0;i<w;i+=scale) {
+
+        ctxR2.beginPath();
+        ctxR2.moveTo(i,0);
+        ctxR2.lineTo(i,h);
+        ctxR2.stroke();
+
     }
 
-    // --- Configuración Plano R2 ---
-    const canvasR2 = document.getElementById('canvasR2');
-    const ctxR2 = canvasR2.getContext('2d');
+    for(let i=0;i<h;i+=scale) {
 
-    let vx = -2.0;
-    let vy = 1.0;
-    let vz = 0.0;
+        ctxR2.beginPath();
+        ctxR2.moveTo(0,i);
+        ctxR2.lineTo(w,i);
+        ctxR2.stroke();
 
-    const sliderX = document.getElementById('slider-x');
-    const sliderY = document.getElementById('slider-y');
-    const sliderZ = document.getElementById('slider-z');
-    const valX = document.getElementById('val-x');
-    const valY = document.getElementById('val-y');
-    const valZ = document.getElementById('val-z');
-    const statusBox = document.getElementById('status-box');
-
-    function updateFromSliders() {
-      vx = parseFloat(sliderX.value);
-      vy = parseFloat(sliderY.value);
-      vz = parseFloat(sliderZ.value);
-      valX.textContent = vx.toFixed(1);
-      valY.textContent = vy.toFixed(1);
-      valZ.textContent = vz.toFixed(1);
-      
-      const isKernel = Math.abs(vx + 2 * vy + vz) < 0.2;
-      kernelPlane.visible = isKernel;
-
-      update3DVector(vx, vy, vz, isKernel);
-      drawR2();
-      updateStatus();
     }
 
-    sliderX.addEventListener('input', updateFromSliders);
-    sliderY.addEventListener('input', updateFromSliders);
-    sliderZ.addEventListener('input', updateFromSliders);
+    ctxR2.strokeStyle = "#8892b0";
+    ctxR2.lineWidth = 2;
 
-    function drawR2() {
-      const w = canvasR2.width;
-      const h = canvasR2.height;
-      const center = [w / 2, h / 2];
-      const scale = 35;
+    ctxR2.beginPath();
+    ctxR2.moveTo(cx,0);
+    ctxR2.lineTo(cx,h);
+    ctxR2.stroke();
 
-      ctxR2.clearRect(0, 0, w, h);
+    ctxR2.beginPath();
+    ctxR2.moveTo(0,cy);
+    ctxR2.lineTo(w,cy);
+    ctxR2.stroke();
 
-      ctxR2.strokeStyle = '#181b28';
-      ctxR2.lineWidth = 1;
-      for (let x = center[0] % scale; x < w; x += scale) {
-        ctxR2.beginPath(); ctxR2.moveTo(x, 0); ctxR2.lineTo(x, h); ctxR2.stroke();
-      }
-      for (let y = center[1] % scale; y < h; y += scale) {
-        ctxR2.beginPath(); ctxR2.moveTo(0, y); ctxR2.lineTo(w, y); ctxR2.stroke();
-      }
+    // Rango: recta y = 2x
 
-      ctxR2.strokeStyle = '#3a3f55';
-      ctxR2.lineWidth = 1.5;
-      ctxR2.beginPath(); ctxR2.moveTo(center[0], 0); ctxR2.lineTo(center[0], h); ctxR2.stroke();
-      ctxR2.beginPath(); ctxR2.moveTo(0, center[1]); ctxR2.lineTo(w, center[1]); ctxR2.stroke();
+    ctxR2.strokeStyle = "#a855f7";
+    ctxR2.lineWidth = 2;
+    ctxR2.setLineDash([6,5]);
 
-      const Tx = vx + 2 * vy + vz;
-      const Ty = 2 * vx + 4 * vy + 2 * vz;
-      const isKernel = Math.abs(vx + 2 * vy + vz) < 0.2;
+    ctxR2.beginPath();
+    ctxR2.moveTo(cx-100,cy+200);
+    ctxR2.lineTo(cx+100,cy-200);
+    ctxR2.stroke();
 
-      const toScreenR2 = (x, y) => [center[0] + x * scale, center[1] - y * scale];
+    ctxR2.setLineDash([]);
 
-      const tvScreen = toScreenR2(Tx, Ty);
-      drawArrowR2(center[0], center[1], tvScreen[0], tvScreen[1], '#a855f7');
+    // Vector resultado
 
-      ctxR2.fillStyle = isKernel ? '#ff4757' : '#a855f7';
-      ctxR2.beginPath();
-      ctxR2.arc(tvScreen[0], tvScreen[1], 6, 0, Math.PI * 2);
-      ctxR2.fill();
-      ctxR2.strokeStyle = '#ffffff';
-      ctxR2.lineWidth = 1.5;
-      ctxR2.stroke();
+    let px = cx + Tx*scale;
+    let py = cy - Ty*scale;
 
-      ctxR2.fillStyle = '#ffffff';
-      ctxR2.font = '11px monospace';
-      ctxR2.fillText('T(v)', tvScreen[0] + 10, tvScreen[1] - 8);
-    }
+    ctxR2.strokeStyle = "#a855f7";
+    ctxR2.lineWidth = 3;
 
-    function updateStatus() {
-      const Tx = vx + 2 * vy + vz;
-      const Ty = 2 * vx + 4 * vy + 2 * vz;
-      const isKernel = Math.abs(vx + 2 * vy + vz) < 0.2;
+    ctxR2.beginPath();
+    ctxR2.moveTo(cx,cy);
+    ctxR2.lineTo(px,py);
+    ctxR2.stroke();
 
-      if (isKernel) {
-        statusBox.style.borderColor = '#ff4757';
-        statusBox.style.color = '#ff4757';
-        statusBox.style.background = 'rgba(255, 71, 87, 0.12)';
-        statusBox.innerHTML = `✓ ¡KERNEL (PLANO) ENCONTRADO!<br>v = (${vx.toFixed(1)}, ${vy.toFixed(1)}, ${vz.toFixed(1)})<br>T(v) = (0.0, 0.0)`;
-      } else {
-        statusBox.style.borderColor = 'rgba(168, 85, 247, 0.3)';
-        statusBox.style.color = '#ffffff';
-        statusBox.style.background = 'rgba(168, 85, 247, 0.08)';
-        statusBox.innerHTML = `v = (${vx.toFixed(1)}, ${vy.toFixed(1)}, ${vz.toFixed(1)})<br>T(v) = (${Tx.toFixed(1)}, ${Ty.toFixed(1)})`;
-      }
-    }
+    ctxR2.fillStyle = "#a855f7";
 
-    function drawArrowR2(fromx, fromy, tox, toy, color) {
-      ctxR2.strokeStyle = color;
-      ctxR2.lineWidth = 2.5;
-      ctxR2.beginPath();
-      ctxR2.moveTo(fromx, fromy);
-      ctxR2.lineTo(tox, toy);
-      ctxR2.stroke();
+    ctxR2.beginPath();
+    ctxR2.arc(px,py,7,0,Math.PI*2);
+    ctxR2.fill();
 
-      const headlen = 8;
-      const angle = Math.atan2(toy - fromy, tox - fromx);
-      ctxR2.fillStyle = color;
-      ctxR2.beginPath();
-      ctxR2.moveTo(tox, toy);
-      ctxR2.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-      ctxR2.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
-      ctxR2.fill();
-    }
+    ctxR2.fillStyle = "white";
+    ctxR2.font = "14px Arial";
+    ctxR2.fillText("T(v)",px+10,py-10);
 
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
+}
 
-    updateFromSliders();
-    animate();
-  </script>
+
+x2.addEventListener("input",update2);
+y2.addEventListener("input",update2);
+z2.addEventListener("input",update2);
+
+update2();
+
+</script>
+
 </body>
 </html>
