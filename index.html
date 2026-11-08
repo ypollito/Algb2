@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>01 — Imagen de Columna</title>
+  <title>Actividad: Encontrar el Núcleo de la Transformación</title>
   <style>
     :root {
       --bg-color: #0b0c10;
       --card-bg: #12141d;
       --accent-cyan: #00f2fe;
-      --accent-blue: #3b82f6;
-      --accent-pink: #ff4b72;
+      --accent-purple: #a855f7;
+      --accent-red: #ff4757;
       --text-main: #ffffff;
       --text-muted: #8892b0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    
+
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
@@ -29,8 +29,8 @@
 
     .container {
       display: grid;
-      grid-template-columns: 380px 480px;
-      gap: 30px;
+      grid-template-columns: 360px 480px;
+      gap: 25px;
       width: 100%;
       max-width: 900px;
       align-items: center;
@@ -39,35 +39,37 @@
     .section-tag {
       font-size: 0.75rem;
       letter-spacing: 2px;
-      color: var(--text-muted);
-      margin-bottom: 10px;
+      color: var(--accent-purple);
+      margin-bottom: 8px;
       font-family: monospace;
     }
 
-    h2 { font-size: 2rem; margin-bottom: 12px; font-weight: 700; line-height: 1.2; }
-    p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px; }
+    h2 { font-size: 1.7rem; margin-bottom: 10px; font-weight: 700; line-height: 1.2; }
+    p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 15px; }
 
-    .controls-card {
+    .formula-card {
       background: var(--card-bg);
       border: 1px solid #1e2330;
-      border-radius: 14px;
-      padding: 20px;
-    }
-
-    .matrix-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
       font-family: monospace;
-      font-size: 0.82rem;
     }
-    .matrix-title { color: var(--text-muted); margin-bottom: 6px; }
-    .matrix-box { color: var(--accent-cyan); line-height: 1.4; font-weight: bold; }
-    .target-box { color: var(--accent-pink); line-height: 1.4; font-weight: bold; }
 
-    .slider-group { margin-bottom: 15px; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px; font-family: monospace; }
-    
+    .formula-title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+    .formula-box {
+      font-size: 1.05rem;
+      color: var(--accent-cyan);
+      text-align: center;
+      background: #08090c;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #2a3142;
+    }
+
+    .slider-group { margin-bottom: 10px; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; font-family: monospace; }
+
     input[type="range"] {
       width: 100%;
       height: 5px;
@@ -76,6 +78,7 @@
       appearance: none;
       outline: none;
     }
+
     input[type="range"]::-webkit-slider-thumb {
       appearance: none;
       width: 14px;
@@ -85,33 +88,16 @@
       cursor: pointer;
       box-shadow: 0 0 8px var(--accent-cyan);
     }
-    #slider-y::-webkit-slider-thumb {
-      background: var(--accent-blue);
-      box-shadow: 0 0 8px var(--accent-blue);
-    }
 
-    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-    .btn {
-      background: #1a1e29;
-      color: var(--text-main);
-      border: 1px solid #2a3142;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: 0.2s;
-    }
-    .btn:hover { background: #252b3b; border-color: var(--accent-cyan); }
-
-    .distance-alert {
-      margin-top: 15px;
-      background: rgba(255, 75, 114, 0.08);
-      border: 1px solid rgba(255, 75, 114, 0.25);
-      padding: 12px 16px;
+    .status-card {
+      background: rgba(168, 85, 247, 0.08);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 12px 15px;
       border-radius: 10px;
-      color: var(--accent-pink);
-      font-size: 0.85rem;
       font-family: monospace;
+      font-size: 0.82rem;
+      margin-top: 12px;
+      transition: 0.3s;
     }
 
     .canvas-card {
@@ -122,15 +108,27 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      position: relative;
     }
 
-    canvas { border-radius: 12px; cursor: grab; background: #0c0e17; }
+    .activity-banner {
+      background: rgba(168, 85, 247, 0.2);
+      color: #e9d5ff;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-family: monospace;
+    }
+
+    canvas { border-radius: 12px; cursor: grab; background: #0c0e17; width: 440px; height: 400px; }
     canvas:active { cursor: grabbing; }
 
     .canvas-hint {
-      margin-top: 10px;
-      font-size: 0.72rem;
+      margin-top: 8px;
+      font-size: 0.7rem;
       color: var(--text-muted);
       font-family: monospace;
     }
@@ -141,46 +139,37 @@
   <div class="container">
     <!-- Panel Izquierdo -->
     <div class="info-panel">
-      <div class="section-tag">01 — IMAGEN DE COLUMNA</div>
-      <h2>Las columnas son indicaciones.</h2>
-      <p>Ax = x·c₁ + y·c₂. La escala cambia cuánto avanzas por cada columna; sumar combina ambos movimientos. Resolver Ax = b es preguntar: ¿hasta dónde tengo que caminar en cada dirección para aterrizar exactamente en b?</p>
+      <div class="section-tag">ÁLGEBRA LINEAL</div>
+      <h2>Transformación Lineal: Núcleo</h2>
+      <p>El núcleo <i>Ker(T)</i> son todos los vectores <b>v</b> tales que <b>T(v) = (0, 0)</b>. Mueve el vector en el plano hasta encontrar la dirección que colapsa la transformación a cero.</p>
 
-      <div class="controls-card">
-        <div class="matrix-row">
-          <div>
-            <div class="matrix-title">MATRIZ A (columnas)</div>
-            <div class="matrix-box">[ &nbsp;2 &nbsp;-1 ]<br>[ -1 &nbsp; 2 ]</div>
-          </div>
-          <div>
-            <div class="matrix-title">OBJETIVO b</div>
-            <div class="target-box">[ &nbsp;0 ]<br>[ &nbsp;3 ]</div>
-          </div>
-        </div>
+      <div class="formula-card">
+        <div class="formula-title">TRANSFORMACIÓN T: R² → R²</div>
+        <div class="formula-box">T(x, y) = (2x + 4y, &nbsp;x + 2y)</div>
+      </div>
 
+      <div class="formula-card">
         <div class="slider-group">
-          <div class="slider-label"><span>x</span><span id="val-x">1.0</span></div>
-          <input type="range" id="slider-x" min="-3" max="3" step="0.1" value="1.0">
+          <div class="slider-label"><span>Vector x</span><span id="val-x">-2.0</span></div>
+          <input type="range" id="slider-x" min="-6" max="6" step="0.1" value="-2.0">
         </div>
         <div class="slider-group">
-          <div class="slider-label"><span>y</span><span id="val-y">1.0</span></div>
-          <input type="range" id="slider-y" min="-3" max="3" step="0.1" value="1.0">
-        </div>
-
-        <div class="btn-group">
-          <button class="btn" onclick="randomize()">🎲 Aleatorio</button>
-          <button class="btn" onclick="resetValues()">🔄 Reinicio</button>
+          <div class="slider-label"><span>Vector y</span><span id="val-y">1.0</span></div>
+          <input type="range" id="slider-y" min="-4" max="4" step="0.1" value="1.0">
         </div>
       </div>
 
-      <div class="distance-alert" id="distance-text">
-        ✕ Distancia desde B: 2,24
+      <div class="status-card" id="status-box">
+        Vector v = (-2.0, 1.0)<br>
+        T(v) = (0.0, 0.0)
       </div>
     </div>
 
     <!-- Panel Derecho (Canvas) -->
     <div class="canvas-card">
-      <canvas id="gridCanvas" width="440" height="440"></canvas>
-      <div class="canvas-hint">Arrastra el punto sólido para resolver a mano</div>
+      <div class="activity-banner">Actividad: encuentra el nucleo de la transformacion</div>
+      <canvas id="gridCanvas" width="440" height="400"></canvas>
+      <div class="canvas-hint">Arrastra el punto azul sobre el plano cartesiano</div>
     </div>
   </div>
 
@@ -188,58 +177,40 @@
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
 
-    const c1 = [2, -1];
-    const c2 = [-1, 2];
-    const b = [0, 3];
-
-    let scaleX = 1.0;
-    let scaleY = 1.0;
+    let vx = -2.0;
+    let vy = 1.0;
     let isDragging = false;
 
     const sliderX = document.getElementById('slider-x');
     const sliderY = document.getElementById('slider-y');
     const valX = document.getElementById('val-x');
     const valY = document.getElementById('val-y');
-    const distanceText = document.getElementById('distance-text');
+    const statusBox = document.getElementById('status-box');
 
-    function updateFromInputs() {
-      scaleX = parseFloat(sliderX.value);
-      scaleY = parseFloat(sliderY.value);
-      valX.textContent = scaleX.toFixed(1);
-      valY.textContent = scaleY.toFixed(1);
+    function updateFromSliders() {
+      vx = parseFloat(sliderX.value);
+      vy = parseFloat(sliderY.value);
+      valX.textContent = vx.toFixed(1);
+      valY.textContent = vy.toFixed(1);
       draw();
     }
 
-    sliderX.addEventListener('input', updateFromInputs);
-    sliderY.addEventListener('input', updateFromInputs);
+    sliderX.addEventListener('input', updateFromSliders);
+    sliderY.addEventListener('input', updateFromSliders);
 
-    function resetValues() {
-      sliderX.value = 1.0;
-      sliderY.value = 1.0;
-      updateFromInputs();
-    }
-
-    function randomize() {
-      sliderX.value = (Math.random() * 4 - 2).toFixed(1);
-      sliderY.value = (Math.random() * 4 - 2).toFixed(1);
-      updateFromInputs();
-    }
-
-    // Drag & Drop
     canvas.addEventListener('mousedown', (e) => {
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top) * scaleY;
       
-      const center = canvas.width / 2;
-      const scale = 38;
-      
-      const v1 = [c1[0] * scaleX, c1[1] * scaleX];
-      const v2 = [c2[0] * scaleY, c2[1] * scaleY];
-      const px = center + (v1[0] + v2[0]) * scale;
-      const py = center - (v1[1] + v2[1]) * scale;
+      const center = [canvas.width / 2, canvas.height / 2];
+      const scale = 35;
+      const px = center[0] + vx * scale;
+      const py = center[1] - vy * scale;
 
-      if (Math.hypot(mx - px, my - py) < 18) {
+      if (Math.hypot(mx - px, my - py) < 20) {
         isDragging = true;
       }
     });
@@ -247,22 +218,21 @@
     window.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
       const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      
-      const center = canvas.width / 2;
-      const scale = 38;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top) * scaleY;
 
-      const targetX = (mx - center) / scale;
-      const targetY = (center - my) / scale;
+      const center = [canvas.width / 2, canvas.height / 2];
+      const scale = 35;
 
-      scaleX = (2 * targetX + 1 * targetY) / 3;
-      scaleY = (1 * targetX + 2 * targetY) / 3;
+      vx = parseFloat(((mx - center[0]) / scale).toFixed(1));
+      vy = parseFloat(((center[1] - my) / scale).toFixed(1));
 
-      sliderX.value = scaleX.toFixed(1);
-      sliderY.value = scaleY.toFixed(1);
-      valX.textContent = scaleX.toFixed(1);
-      valY.textContent = scaleY.toFixed(1);
+      sliderX.value = vx;
+      sliderY.value = vy;
+      valX.textContent = vx.toFixed(1);
+      valY.textContent = vy.toFixed(1);
       draw();
     });
 
@@ -271,8 +241,8 @@
     function draw() {
       const w = canvas.width;
       const h = canvas.height;
-      const center = w / 2;
-      const scale = 38;
+      const center = [w / 2, h / 2];
+      const scale = 35;
 
       ctx.clearRect(0, 0, w, h);
 
@@ -287,81 +257,80 @@
       }
 
       // Ejes Cartesiano
-      ctx.strokeStyle = '#2d3748';
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(center, 0); ctx.lineTo(center, h); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, center); ctx.lineTo(w, center); ctx.stroke();
+      ctx.strokeStyle = '#3a3f55';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(center[0], 0); ctx.lineTo(center[0], h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, center[1]); ctx.lineTo(w, center[1]); ctx.stroke();
 
-      const toScreen = (x, y) => [center + x * scale, center - y * scale];
+      const toScreen = (x, y) => [center[0] + x * scale, center[1] - y * scale];
 
-      // Vector Objetivo B (Blanco Punteado)
-      const bScreen = toScreen(b[0], b[1]);
-      ctx.save();
-      ctx.setLineDash([4, 4]);
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
+      const Tx = 2 * vx + 4 * vy;
+      const Ty = 1 * vx + 2 * vy;
+      const isKernel = Math.abs(Tx) < 0.25 && Math.abs(Ty) < 0.25;
+
+      if (isKernel) {
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = '#ff4757';
+        ctx.lineWidth = 2;
+        
+        const pStart = toScreen(-8, 4);
+        const pEnd = toScreen(8, -4);
+        
+        ctx.beginPath();
+        ctx.moveTo(pStart[0], pStart[1]);
+        ctx.lineTo(pEnd[0], pEnd[1]);
+        ctx.stroke();
+        ctx.restore();
+
+        const textPos = toScreen(vx - 2.0, vy + 0.6);
+        ctx.fillStyle = '#ff4757';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText('este es el núcleo 😊', textPos[0], textPos[1]);
+      }
+
+      const vScreen = toScreen(vx, vy);
+      drawArrow(center[0], center[1], vScreen[0], vScreen[1], '#00f2fe');
+
+      ctx.fillStyle = isKernel ? '#ff4757' : '#3b82f6';
       ctx.beginPath();
-      ctx.moveTo(center, center);
-      ctx.lineTo(bScreen[0], bScreen[1]);
-      ctx.stroke();
-      ctx.restore();
-      drawArrowHead(center, center, bScreen[0], bScreen[1], '#ffffff');
-
-      // Vectores de combinación
-      const v1 = [c1[0] * scaleX, c1[1] * scaleX];
-      const v2 = [c2[0] * scaleY, c2[1] * scaleY];
-      const currentPos = [v1[0] + v2[0], v1[1] + v2[1]];
-
-      const p1 = toScreen(v1[0], v1[1]);
-      const p2 = toScreen(currentPos[0], currentPos[1]);
-
-      // Vector c1 (Cyan)
-      ctx.shadowColor = '#00f2fe';
-      ctx.shadowBlur = 8;
-      drawArrow(center, center, p1[0], p1[1], '#00f2fe');
-
-      // Vector c2 (Azul)
-      ctx.shadowColor = '#3b82f6';
-      ctx.shadowBlur = 8;
-      drawArrow(p1[0], p1[1], p2[0], p2[1], '#3b82f6');
-      ctx.shadowBlur = 0;
-
-      // Punto Rosado
-      ctx.fillStyle = '#ff4b72';
-      ctx.beginPath();
-      ctx.arc(p2[0], p2[1], 8, 0, Math.PI * 2);
+      ctx.arc(vScreen[0], vScreen[1], 7, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Cálculo de Distancia
-      const dist = Math.hypot(currentPos[0] - b[0], currentPos[1] - b[1]);
-      if (dist < 0.1) {
-        distanceText.style.borderColor = '#10b981';
-        distanceText.style.color = '#10b981';
-        distanceText.style.background = 'rgba(16, 185, 129, 0.1)';
-        distanceText.innerHTML = `✓ ¡Objetivo alcanzado! (Distancia: 0,00)`;
+      if (!isKernel) {
+        const tvScreen = toScreen(Tx, Ty);
+        drawArrow(center[0], center[1], tvScreen[0], tvScreen[1], '#a855f7');
+        
+        ctx.fillStyle = '#a855f7';
+        ctx.font = '12px monospace';
+        ctx.fillText('Tv', tvScreen[0] + 8, tvScreen[1] - 8);
+      }
+
+      if (isKernel) {
+        statusBox.style.borderColor = '#ff4757';
+        statusBox.style.color = '#ff4757';
+        statusBox.style.background = 'rgba(255, 71, 87, 0.12)';
+        statusBox.innerHTML = `✓ ¡NÚCLEO ENCONTRADO!<br>v = (${vx.toFixed(1)}, ${vy.toFixed(1)})<br>T(v) = (0.0, 0.0) → Recta: y = -0.5x`;
       } else {
-        distanceText.style.borderColor = 'rgba(255, 75, 114, 0.25)';
-        distanceText.style.color = 'var(--accent-pink)';
-        distanceText.style.background = 'rgba(255, 75, 114, 0.08)';
-        distanceText.innerHTML = `✕ Distancia desde B: ${dist.toFixed(2).replace('.', ',')}`;
+        statusBox.style.borderColor = 'rgba(168, 85, 247, 0.3)';
+        statusBox.style.color = 'var(--text-main)';
+        statusBox.style.background = 'rgba(168, 85, 247, 0.08)';
+        statusBox.innerHTML = `Vector v = (${vx.toFixed(1)}, ${vy.toFixed(1)})<br>T(v) = (${Tx.toFixed(1)}, ${Ty.toFixed(1)})`;
       }
     }
 
     function drawArrow(fromx, fromy, tox, toy, color) {
       ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(fromx, fromy);
       ctx.lineTo(tox, toy);
       ctx.stroke();
-      drawArrowHead(fromx, fromy, tox, toy, color);
-    }
 
-    function drawArrowHead(fromx, fromy, tox, toy, color) {
-      const headlen = 10;
+      const headlen = 9;
       const angle = Math.atan2(toy - fromy, tox - fromx);
       ctx.fillStyle = color;
       ctx.beginPath();
